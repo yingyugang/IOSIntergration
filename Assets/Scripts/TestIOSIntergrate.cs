@@ -6,6 +6,17 @@ using UnityEngine.UI;
 
 namespace BlueNoah.NativeIntergrate
 {
+    public struct SampleStruct
+    {
+        public int a;
+        public long b;
+        public float c;
+        public double d;
+        public string e;
+        public int[] f;
+        public string[] g;
+    }
+
     public class TestIOSIntergrate : MonoBehaviour
     {
         [SerializeField]
@@ -30,15 +41,31 @@ namespace BlueNoah.NativeIntergrate
             {
                 var intArr = new int[] { 111, 222, 333, 444, 555 };
                 var strArr = new string[] { "a", "b", "c", "d", "e" };
-                sampleMethod3(intArr, intArr.Length,strArr,strArr.Length);
+                sampleMethod3(intArr, intArr.Length, strArr, strArr.Length);
             });
-            CreateItem("sampleMethod4", ()=> {
+            CreateItem("sampleMethod4", () =>
+            {
                 sampleMethod4(cs_callback);
             });
-            CreateItem("sampleMethod5", () => {
+            //TODO 这里好像有问题。
+            CreateItem("sampleMethod5", () =>
+            {
                 GameObject gameObject = new GameObject("Sample_GameObject");
                 IntPtr gameObjectPtr = (IntPtr)GCHandle.Alloc(gameObject);
-                sampleMethod5(gameObjectPtr, cs_callback);
+                sampleMethod5(gameObjectPtr, cs_callback1);
+            });
+            CreateItem("sampleMethod5_1", () =>
+            {
+                var sampleStruct = new SampleStruct();
+                sampleStruct.a = 111;
+                sampleStruct.b = 222;
+                sampleStruct.c = 3333333.1f;
+                sampleStruct.d = 44444.1;
+                sampleStruct.e = "abcdefg";
+                sampleStruct.f = new int[] { 1, 2, 3, 4, 5, 6 };
+                //TODO MarshalDirectiveException: Cannot marshal field 'g' of type 'SampleStruct'.
+                sampleStruct.g = new string[] { "a", "b", "c", "d", "e", "f", "g" };
+                sampleMethod5_1(sampleStruct);
             });
             msg = message;
         }
@@ -78,7 +105,7 @@ namespace BlueNoah.NativeIntergrate
         [DllImport("__Internal")]
         private static extern void sampleMethod5(IntPtr gameObjectPtr, callback_delegate1 callback);
         [MonoPInvokeCallback(typeof(callback_delegate1))]
-        private static void cs_callback(IntPtr gameObjectPtr, int val)
+        private static void cs_callback1(IntPtr gameObjectPtr, int val)
         {
             GCHandle handle = (GCHandle)gameObjectPtr;
             GameObject gameObject = handle.Target as GameObject;
@@ -86,5 +113,7 @@ namespace BlueNoah.NativeIntergrate
             Debug.Log("cs_callback : " + gameObject.name);
             msg.text = gameObject.name;
         }
+        [DllImport("__Internal")]
+        private static extern void sampleMethod5_1(SampleStruct data);
     }
 }
