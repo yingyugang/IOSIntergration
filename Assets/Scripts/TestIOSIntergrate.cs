@@ -67,6 +67,32 @@ namespace BlueNoah.NativeIntergrate
                 sampleStruct.g = new string[] { "a", "b", "c", "d", "e", "f", "g" };
                 sampleMethod5_1(sampleStruct);
             });
+            CreateItem("sampleMethod6", () =>
+            {
+                msg.text = sampleMethod6().ToString();
+            });
+            CreateItem("sampleMethod7", () =>
+            {
+                msg.text = sampleMethod7().ToString();
+            });
+            CreateItem("sampleMethod8", () =>
+            {
+                msg.text = sampleMethod8().ToString();
+            });
+            CreateItem("sampleMethod9", () =>
+            {
+                msg.text = sampleMethod9();
+            });
+            CreateItem("sampleMethod10", () =>
+            {
+                var arrayInt = sampleMethod10Invoker();
+                string str = "";
+                foreach (var item in arrayInt)
+                {
+                    str += $"{item},";
+                }
+                msg.text = str;
+            });
             msg = message;
         }
 
@@ -115,5 +141,30 @@ namespace BlueNoah.NativeIntergrate
         }
         [DllImport("__Internal")]
         private static extern void sampleMethod5_1(SampleStruct data);
+
+        [DllImport("__Internal")]
+        private static extern int sampleMethod6();
+
+        [DllImport("__Internal")]
+        private static extern float sampleMethod7();
+
+        [DllImport("__Internal")]
+        private static extern bool sampleMethod8();
+
+        [DllImport("__Internal")]
+        private static extern string sampleMethod9();
+
+        [DllImport("__Internal")]
+        private static extern void sampleMethod10(out IntPtr arrPtr, out int size);
+
+        private static int[] sampleMethod10Invoker()
+        {
+            IntPtr arrPtr = IntPtr.Zero;
+            int size = 0;
+            sampleMethod10(out arrPtr, out size);
+            int[] arr = new int[size];
+            Marshal.Copy(arrPtr, arr, 0, size);
+            return arr;
+        }
     }
 }
